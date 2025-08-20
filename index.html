@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thông tin Ấp – Mẫu infographic hiện đại</title>
+  <meta name="description" content="Mẫu trang web hiển thị thông tin 1 ấp: bản đồ, tổng quan, nhân sự, liên hệ – phong cách infographic, hiện đại." />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Inter font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js for small infographic chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-slate-200">
+    <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-500 shadow-sm"></div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-semibold">Ấp Bình An</h1>
+          <p class="text-xs text-slate-500">Xã Bình Hưng, Huyện Bình Chánh, TP.HCM</p>
+        </div>
+      </div>
+      <nav class="hidden md:flex items-center gap-6 text-sm text-slate-600">
+        <a href="#map" class="hover:text-slate-900">Bản đồ</a>
+        <a href="#overview" class="hover:text-slate-900">Tổng quan</a>
+        <a href="#people" class="hover:text-slate-900">Nhân sự</a>
+        <a href="#contact" class="hover:text-slate-900">Liên hệ</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero / Intro -->
+  <section class="mx-auto max-w-7xl px-4 pt-8">
+    <div class="grid md:grid-cols-5 gap-6 items-stretch">
+      <div class="md:col-span-3 p-5 rounded-2xl bg-white shadow-sm border border-slate-200">
+        <h2 class="text-base font-semibold mb-3 flex items-center gap-2">
+          <i data-lucide="map-pin" class="w-5 h-5"></i> Vị trí & Bản đồ
+        </h2>
+        <!-- Map embed: Thay q=... bằng tên ấp/xã của bạn -->
+        <div id="map" class="aspect-[16/9] w-full rounded-xl overflow-hidden border border-slate-200">
+          <iframe
+            class="w-full h-full"
+            style="border:0" loading="lazy" allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.963592079706!2d106.673!3d10.737!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f4f2b0f9f3d%3A0x0000000000000000!2zQsOgaW4gSMawbmcsIELDrG5oIENo4bqhbmg!5e0!3m2!1svi!2svi!4v1710000000000"></iframe>
+        </div>
+        <div class="mt-3 text-sm text-slate-600">*Gợi ý:* Bạn có thể thay iframe Google Maps bằng LeafletJS nếu cần tuỳ biến cao.</div>
+      </div>
+
+      <div class="md:col-span-2 p-5 rounded-2xl bg-white shadow-sm border border-slate-200">
+        <h2 class="text-base font-semibold mb-3 flex items-center gap-2">
+          <i data-lucide="info" class="w-5 h-5"></i> Thông tin nhanh
+        </h2>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <p class="text-xs text-slate-500">Diện tích</p>
+            <p class="text-xl font-semibold">2.35 km²</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <p class="text-xs text-slate-500">Dân số</p>
+            <p class="text-xl font-semibold">5,420 người</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <p class="text-xs text-slate-500">Hộ gia đình</p>
+            <p class="text-xl font-semibold">1,280 hộ</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <p class="text-xs text-slate-500">Tổ dân phố</p>
+            <p class="text-xl font-semibold">6 tổ</p>
+          </div>
+        </div>
+        <div class="mt-4">
+          <canvas id="chart-pop" class="w-full"></canvas>
+          <p class="mt-2 text-xs text-slate-500">Cơ cấu dân số (ước tính)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Overview Cards -->
+  <section id="overview" class="mx-auto max-w-7xl px-4 mt-8">
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="rounded-2xl bg-white shadow-sm border border-slate-200 p-5">
+        <div class="flex items-center gap-2 mb-2"><i data-lucide="store" class="w-5 h-5"></i><h3 class="font-semibold">Kinh tế</h3></div>
+        <ul class="text-sm list-disc pl-5 space-y-1 text-slate-700">
+          <li>Thương mại – dịch vụ nhỏ lẻ</li>
+          <li>SX tiểu thủ công nghiệp</li>
+          <li>Nông nghiệp đô thị</li>
+        </ul>
+      </div>
+      <div class="rounded-2xl bg-white shadow-sm border border-slate-200 p-5">
+        <div class="flex items-center gap-2 mb-2"><i data-lucide="school" class="w-5 h-5"></i><h3 class="font-semibold">Giáo dục – Y tế</h3></div>
+        <ul class="text-sm list-disc pl-5 space-y-1 text-slate-700">
+          <li>01 trường Tiểu học, 01 Mầm non</li>
+          <li>Trạm y tế xã gần kề</li>
+          <li>Tỷ lệ trẻ đến lớp: 99%</li>
+        </ul>
+      </div>
+      <div class="rounded-2xl bg-white shadow-sm border border-slate-200 p-5">
+        <div class="flex items-center gap-2 mb-2"><i data-lucide="shield-check" class="w-5 h-5"></i><h3 class="font-semibold">An ninh – Trật tự</h3></div>
+        <ul class="text-sm list-disc pl-5 space-y-1 text-slate-700">
+          <li>Tổ tự quản hoạt động thường xuyên</li>
+          <li>Camera an ninh tại các trục chính</li>
+          <li>Đường dây nóng phản ánh 24/7</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- People -->
+  <section id="people" class="mx-auto max-w-7xl px-4 mt-8">
+    <div class="mb-4 flex items-center justify-between">
+      <h2 class="text-base font-semibold flex items-center gap-2"><i data-lucide="users" class="w-5 h-5"></i> Nhân sự chủ chốt</h2>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Card person -->
+      <article class="rounded-2xl bg-white shadow-sm border border-slate-200 p-5">
+        <div class="flex items-center gap-4">
+          <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-500 grid place-items-center text-white font-semibold text-lg">BA</div>
+          <div>
+            <h3 class="font-semibold">Nguyễn Văn An</h3>
+            <p class="text-sm text-slate-500">Bí thư Chi bộ</p>
+            <a href="tel:0901234567" class="text-sm text-emerald-700 hover:underline">090 123 4567</a>
+          </div>
+        </div>
+      </article>
+      <article class="rounded-2xl bg-white shadow-sm border border-slate-200 p-5">
+        <div class="flex items-center gap-4">
+          <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-400 to-sky-500 grid place-items-center text-white font-semibold text-lg">TP</div>
+          <div>
+            <h3 class="font-semibold">Trần Phương</h3>
+            <p class="text-sm text-slate-500">Trưởng Ấp</p>
+            <a href="tel:0912345678" class="text-sm text-emerald-700 hover:underline">091 234 5678</a>
+          </div>
+        </div>
+      </article>
+      <article class="rounded-2xl bg-white shadow-sm border border-slate-200 p-5">
+        <div class="flex items-center gap-4">
+          <div class="h-14 w-14 rounded-2xl bg-gradient-to-br from-rose-400 to-orange-400 grid place-items-center text-white font-semibold text-lg">CA</div>
+          <div>
+            <h3 class="font-semibold">Lê Minh Châu</h3>
+            <p class="text-sm text-slate-500">Công an khu vực</p>
+            <a href="tel:0923456789" class="text-sm text-emerald-700 hover:underline">092 345 6789</a>
+          </div>
+        </div>
+      </article>
+      <!-- Add more people as needed -->
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="mx-auto max-w-7xl px-4 mt-8 mb-16">
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="rounded-2xl bg-white shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-semibold mb-3 flex items-center gap-2"><i data-lucide="mail" class="w-5 h-5"></i> Góp ý & Liên hệ</h2>
+        <form class="space-y-3" onsubmit="event.preventDefault(); alert('Đã gửi góp ý!'); this.reset();">
+          <div>
+            <label class="text-sm text-slate-600">Họ tên</label>
+            <input class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Nhập họ tên" required />
+          </div>
+          <div>
+            <label class="text-sm text-slate-600">Số điện thoại</label>
+            <input type="tel" class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Ví dụ: 0901234567" />
+          </div>
+          <div>
+            <label class="text-sm text-slate-600">Nội dung</label>
+            <textarea class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500" rows="4" placeholder="Nhập nội dung góp ý..."></textarea>
+          </div>
+          <button class="rounded-xl bg-emerald-600 text-white px-4 py-2 font-medium hover:bg-emerald-700 shadow-sm">Gửi góp ý</button>
+        </form>
+      </div>
+      <div class="rounded-2xl bg-white shadow-sm border border-slate-200 p-5">
+        <h2 class="text-base font-semibold mb-3 flex items-center gap-2"><i data-lucide="phone" class="w-5 h-5"></i> Thông tin liên hệ nhanh</h2>
+        <ul class="text-sm space-y-2">
+          <li class="flex items-center gap-2"><i data-lucide="badge-check" class="w-4 h-4"></i>Bí thư Chi bộ: <a class="text-emerald-700 hover:underline" href="tel:0901234567">090 123 4567</a></li>
+          <li class="flex items-center gap-2"><i data-lucide="id-card" class="w-4 h-4"></i>Trưởng Ấp: <a class="text-emerald-700 hover:underline" href="tel:0912345678">091 234 5678</a></li>
+          <li class="flex items-center gap-2"><i data-lucide="alarm-check" class="w-4 h-4"></i>Đường dây nóng an ninh: <a class="text-emerald-700 hover:underline" href="tel:113">113</a></li>
+          <li class="flex items-center gap-2"><i data-lucide="message-square" class="w-4 h-4"></i>Zalo tổ trưởng: <a class="text-emerald-700 hover:underline" href="#">zalo.me/xxxxx</a></li>
+        </ul>
+        <div class="mt-4 flex gap-3">
+          <a href="#" class="rounded-xl border border-slate-300 px-3 py-2 hover:bg-slate-50">Facebook</a>
+          <a href="#" class="rounded-xl border border-slate-300 px-3 py-2 hover:bg-slate-50">Zalo</a>
+          <a href="#" class="rounded-xl border border-slate-300 px-3 py-2 hover:bg-slate-50">Email</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="border-t border-slate-200 bg-white">
+    <div class="mx-auto max-w-7xl px-4 py-6 text-xs text-slate-500 flex items-center justify-between">
+      <span>© 2025 Ấp Bình An – Mẫu giao diện infographic</span>
+      <span>Thiết kế bằng TailwindCSS</span>
+    </div>
+  </footer>
+
+  <script>
+    // Render icons
+    lucide.createIcons();
+
+    // Demo chart (cơ cấu dân số)
+    const ctx = document.getElementById('chart-pop');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Trẻ em', 'Lao động', 'Cao tuổi'],
+          datasets: [{ data: [22, 66, 12] }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
