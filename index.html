@@ -1,113 +1,119 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thông tin Ấp</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body class="bg-gray-100 font-sans">
   <div class="container mx-auto p-4 space-y-6">
 
-    <!-- Tiêu đề -->
-    <header class="text-center">
-      <h1 class="text-3xl font-bold mb-2">🌿 Thông tin Ấp</h1>
-      <p class="text-gray-600">Hiển thị thông tin, bản đồ và nhân sự của từng Ấp</p>
-    </header>
-
     <!-- Chọn Ấp -->
     <section class="bg-white shadow rounded-2xl p-6">
-      <label for="apSelect" class="block text-lg font-semibold mb-2">Chọn Ấp:</label>
-      <select id="apSelect" class="w-full border rounded-lg p-2">
-        <option value="binhan">Ấp Bình An</option>
-        <option value="binhminh">Ấp Bình Minh</option>
-      </select>
+      <h2 class="text-xl font-semibold mb-4">🏘️ Chọn Ấp</h2>
+      <select id="apSelect" class="p-2 border rounded"></select>
     </section>
 
     <!-- Thông tin Ấp -->
     <section id="info" class="bg-white shadow rounded-2xl p-6">
       <h2 class="text-xl font-semibold mb-4">ℹ️ Thông tin Ấp</h2>
-      <div id="apInfo" class="text-gray-700 space-y-2"></div>
+      <div id="apInfo"></div>
     </section>
 
     <!-- Bản đồ PDF -->
     <section id="map" class="bg-white shadow rounded-2xl p-6">
       <h2 class="text-xl font-semibold mb-4">📍 Bản đồ Ấp</h2>
-      <div class="w-full h-[80vh]">
-        <iframe id="apMap" 
-          src="" 
-          class="w-full h-full rounded-xl border" 
-          title="Bản đồ Ấp">
-        </iframe>
+      <div class="w-full h-[500px]">
+        <iframe id="apMap"
+          class="w-full h-full rounded-xl border"
+          title="Bản đồ Ấp"></iframe>
       </div>
     </section>
 
-    <!-- Danh sách nhân sự -->
+    <!-- Nhân sự từ Excel -->
     <section id="people" class="bg-white shadow rounded-2xl p-6">
-      <h2 class="text-xl font-semibold mb-4">👥 Nhân sự</h2>
+      <h2 class="text-xl font-semibold mb-4">👥 Nhân sự Ấp</h2>
       <ul id="apPeople" class="space-y-2"></ul>
     </section>
-
-    <!-- Liên hệ -->
-    <section id="contact" class="bg-white shadow rounded-2xl p-6">
-      <h2 class="text-xl font-semibold mb-4">📞 Liên hệ</h2>
-      <p id="apContact" class="text-gray-700"></p>
-    </section>
-
   </div>
 
   <script>
-    const aps = {
-      binhan: {
-        name: "Ấp Bình An",
-        location: "Xã Bình Hưng, Huyện Bình Chánh, TP.HCM",
-        map: "pdfs/binhan.pdf",
-        info: { area: "2 km²", pop: "3.200", household: "780", group: "5" },
-        staff: [
-          { name: "Nguyễn Văn A", role: "Bí thư chi bộ", phone: "0909xxxxxx" },
-          { name: "Trần Thị B", role: "Trưởng ấp", phone: "0918xxxxxx" },
-          { name: "Lê Văn C", role: "Công an khu vực", phone: "0937xxxxxx" }
-        ]
-      },
-      binhminh: {
-        name: "Ấp Bình Minh",
-        location: "Xã Phú Xuân, Huyện Nhà Bè, TP.HCM",
-        map: "pdfs/binhminh.pdf",
-        info: { area: "1.5 km²", pop: "2.500", household: "620", group: "4" },
-        staff: [
-          { name: "Phạm Văn D", role: "Bí thư chi bộ", phone: "0903xxxxxx" },
-          { name: "Ngô Thị E", role: "Trưởng ấp", phone: "0917xxxxxx" },
-          { name: "Võ Văn F", role: "Công an khu vực", phone: "0935xxxxxx" }
-        ]
-      }
-    };
+  let apData = {}; // lưu dữ liệu từ Excel
 
+  // Hàm đọc file Excel tổng hợp thông tin Ấp
+  async function loadThongTinAp() {
+    const response = await fetch("data/thongtin_ap.xlsx");
+    const arrayBuffer = await response.arrayBuffer();
+    const data = new Uint8Array(arrayBuffer);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const json = XLSX.utils.sheet_to_json(sheet);
+
+    // Lưu dữ liệu theo key
+    json.forEach(row => {
+      apData[row.ApKey] = row;
+    });
+
+    // Tạo danh sách chọn Ấp
     const apSelect = document.getElementById("apSelect");
-    const apInfo = document.getElementById("apInfo");
-    const apMap = document.getElementById("apMap");
-    const apPeople = document.getElementById("apPeople");
-    const apContact = document.getElementById("apContact");
+    apSelect.innerHTML = Object.values(apData)
+      .map(ap => `<option value="${ap.ApKey}">${ap.TenAp}</option>`)
+      .join("");
 
-    function loadAp(apKey) {
-      const ap = aps[apKey];
-      apInfo.innerHTML = `
-        <p><strong>Tên Ấp:</strong> ${ap.name}</p>
-        <p><strong>Vị trí:</strong> ${ap.location}</p>
-        <p><strong>Diện tích:</strong> ${ap.info.area}</p>
-        <p><strong>Dân số:</strong> ${ap.info.pop}</p>
-        <p><strong>Số hộ:</strong> ${ap.info.household}</p>
-        <p><strong>Số tổ:</strong> ${ap.info.group}</p>
-      `;
-      apMap.src = ap.map + "#toolbar=0&navpanes=0&scrollbar=0";
-      apPeople.innerHTML = ap.staff
-        .map(s => `<li>👤 <strong>${s.name}</strong> – ${s.role} – 📱 ${s.phone}</li>`)
+    // Load mặc định Ấp đầu tiên
+    loadAp(Object.keys(apData)[0]);
+  }
+
+  // Hàm đọc file Excel nhân sự cho từng Ấp
+  async function loadExcelNhanSu(filePath) {
+    try {
+      const response = await fetch(filePath);
+      const arrayBuffer = await response.arrayBuffer();
+      const data = new Uint8Array(arrayBuffer);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(sheet);
+
+      const apPeople = document.getElementById("apPeople");
+      apPeople.innerHTML = json
+        .map(row => `<li>👤 <strong>${row.HọTên}</strong> – ${row.ChứcDanh} – 📱 ${row.SĐT}</li>`)
         .join("");
-      apContact.textContent = `Liên hệ Ban điều hành Ấp: ${ap.staff[1].phone}`;
+    } catch (error) {
+      console.error("Lỗi khi tải Excel nhân sự:", error);
     }
+  }
 
-    // Load mặc định
-    loadAp(apSelect.value);
-    apSelect.addEventListener("change", e => loadAp(e.target.value));
+  // Hàm load dữ liệu Ấp theo key
+  function loadAp(apKey) {
+    const ap = apData[apKey];
+    if (!ap) return;
+
+    // cập nhật thông tin Ấp
+    document.getElementById("apInfo").innerHTML = `
+      <p><strong>Tên Ấp:</strong> ${ap.TenAp}</p>
+      <p><strong>Diện tích:</strong> ${ap.DienTich}</p>
+      <p><strong>Dân số:</strong> ${ap.DanSo}</p>
+      <p><strong>Địa chỉ:</strong> ${ap.DiaChi}</p>
+    `;
+
+    // cập nhật bản đồ PDF
+    document.getElementById("apMap").src = `${ap.MapFile}#toolbar=0&navpanes=0&scrollbar=0`;
+
+    // cập nhật nhân sự
+    loadExcelNhanSu(ap.ExcelNhanSu);
+  }
+
+  // Sự kiện chọn Ấp
+  document.getElementById("apSelect").addEventListener("change", (e) => {
+    loadAp(e.target.value);
+  });
+
+  // Khởi động
+  document.addEventListener("DOMContentLoaded", loadThongTinAp);
   </script>
 </body>
 </html>
