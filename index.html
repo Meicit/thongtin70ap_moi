@@ -1,25 +1,59 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Thông tin Ấp</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 text-slate-800">
-  <div class="max-w-3xl mx-auto p-4 space-y-6">
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto p-4 space-y-6">
+
+    <!-- Tiêu đề -->
+    <header class="text-center">
+      <h1 class="text-3xl font-bold mb-2">🌿 Thông tin Ấp</h1>
+      <p class="text-gray-600">Hiển thị thông tin, bản đồ và nhân sự của từng Ấp</p>
+    </header>
+
     <!-- Chọn Ấp -->
-    <div class="text-center">
-      <label for="apSelect" class="block mb-2 text-lg font-semibold">Chọn Ấp</label>
-      <select id="apSelect" class="p-2 border rounded">
+    <section class="bg-white shadow rounded-2xl p-6">
+      <label for="apSelect" class="block text-lg font-semibold mb-2">Chọn Ấp:</label>
+      <select id="apSelect" class="w-full border rounded-lg p-2">
         <option value="binhan">Ấp Bình An</option>
         <option value="binhminh">Ấp Bình Minh</option>
-        <option value="hoaphu">Ấp Hòa Phú</option>
       </select>
-    </div>
+    </section>
 
-    <!-- Nội dung hiển thị -->
-    <div id="apInfo"></div>
+    <!-- Thông tin Ấp -->
+    <section id="info" class="bg-white shadow rounded-2xl p-6">
+      <h2 class="text-xl font-semibold mb-4">ℹ️ Thông tin Ấp</h2>
+      <div id="apInfo" class="text-gray-700 space-y-2"></div>
+    </section>
+
+    <!-- Bản đồ PDF -->
+    <section id="map" class="bg-white shadow rounded-2xl p-6">
+      <h2 class="text-xl font-semibold mb-4">📍 Bản đồ Ấp</h2>
+      <div class="w-full h-[80vh]">
+        <iframe id="apMap" 
+          src="" 
+          class="w-full h-full rounded-xl border" 
+          title="Bản đồ Ấp">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- Danh sách nhân sự -->
+    <section id="people" class="bg-white shadow rounded-2xl p-6">
+      <h2 class="text-xl font-semibold mb-4">👥 Nhân sự</h2>
+      <ul id="apPeople" class="space-y-2"></ul>
+    </section>
+
+    <!-- Liên hệ -->
+    <section id="contact" class="bg-white shadow rounded-2xl p-6">
+      <h2 class="text-xl font-semibold mb-4">📞 Liên hệ</h2>
+      <p id="apContact" class="text-gray-700"></p>
+    </section>
+
   </div>
 
   <script>
@@ -27,7 +61,7 @@
       binhan: {
         name: "Ấp Bình An",
         location: "Xã Bình Hưng, Huyện Bình Chánh, TP.HCM",
-        map: "https://www.google.com/maps/embed?...",
+        map: "pdfs/binhan.pdf",
         info: { area: "2 km²", pop: "3.200", household: "780", group: "5" },
         staff: [
           { name: "Nguyễn Văn A", role: "Bí thư chi bộ", phone: "0909xxxxxx" },
@@ -38,84 +72,42 @@
       binhminh: {
         name: "Ấp Bình Minh",
         location: "Xã Phú Xuân, Huyện Nhà Bè, TP.HCM",
-        map: "https://www.google.com/maps/embed?...",
+        map: "pdfs/binhminh.pdf",
         info: { area: "1.5 km²", pop: "2.500", household: "620", group: "4" },
         staff: [
           { name: "Phạm Văn D", role: "Bí thư chi bộ", phone: "0903xxxxxx" },
           { name: "Ngô Thị E", role: "Trưởng ấp", phone: "0917xxxxxx" },
           { name: "Võ Văn F", role: "Công an khu vực", phone: "0935xxxxxx" }
         ]
-      },
-      hoaphu: {
-        name: "Ấp Hòa Phú",
-        location: "Xã Hòa Phú, Huyện Củ Chi, TP.HCM",
-        map: "https://www.google.com/maps/embed?...",
-        info: { area: "3.5 km²", pop: "4.100", household: "950", group: "6" },
-        staff: [
-          { name: "Đặng Văn G", role: "Bí thư chi bộ", phone: "0907xxxxxx" },
-          { name: "Lý Thị H", role: "Trưởng ấp", phone: "0916xxxxxx" },
-          { name: "Hoàng Văn I", role: "Công an khu vực", phone: "0934xxxxxx" }
-        ]
       }
     };
 
-    function renderAp(key) {
-      const ap = aps[key];
-      document.getElementById("apInfo").innerHTML = `
-        <header class="text-center">
-          <h1 class="text-2xl font-bold">${ap.name}</h1>
-          <p class="text-slate-500">${ap.location}</p>
-        </header>
+    const apSelect = document.getElementById("apSelect");
+    const apInfo = document.getElementById("apInfo");
+    const apMap = document.getElementById("apMap");
+    const apPeople = document.getElementById("apPeople");
+    const apContact = document.getElementById("apContact");
 
-        <section>
-          <h2 class="text-xl font-semibold mb-2">Bản đồ</h2>
-          <iframe src="${ap.map}" width="100%" height="300" style="border:0;" allowfullscreen loading="lazy"></iframe>
-        </section>
-
-        <section>
-          <h2 class="text-xl font-semibold mb-2">Thông tin tổng quan</h2>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="p-4 bg-white shadow rounded-2xl text-center">
-              <p class="text-lg font-bold">${ap.info.area}</p>
-              <p class="text-sm text-slate-500">Diện tích</p>
-            </div>
-            <div class="p-4 bg-white shadow rounded-2xl text-center">
-              <p class="text-lg font-bold">${ap.info.pop}</p>
-              <p class="text-sm text-slate-500">Dân số</p>
-            </div>
-            <div class="p-4 bg-white shadow rounded-2xl text-center">
-              <p class="text-lg font-bold">${ap.info.household}</p>
-              <p class="text-sm text-slate-500">Hộ gia đình</p>
-            </div>
-            <div class="p-4 bg-white shadow rounded-2xl text-center">
-              <p class="text-lg font-bold">${ap.info.group}</p>
-              <p class="text-sm text-slate-500">Tổ dân phố</p>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <h2 class="text-xl font-semibold mb-2">Nhân sự chủ chốt</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            ${ap.staff.map(s => `
-              <div class="p-4 bg-white shadow rounded-2xl text-center">
-                <img src="https://via.placeholder.com/100" class="mx-auto rounded-full mb-2">
-                <p class="font-semibold">${s.name}</p>
-                <p class="text-sm text-slate-500">${s.role}</p>
-                <p class="text-sm text-slate-500">${s.phone}</p>
-              </div>
-            `).join('')}
-          </div>
-        </section>
+    function loadAp(apKey) {
+      const ap = aps[apKey];
+      apInfo.innerHTML = `
+        <p><strong>Tên Ấp:</strong> ${ap.name}</p>
+        <p><strong>Vị trí:</strong> ${ap.location}</p>
+        <p><strong>Diện tích:</strong> ${ap.info.area}</p>
+        <p><strong>Dân số:</strong> ${ap.info.pop}</p>
+        <p><strong>Số hộ:</strong> ${ap.info.household}</p>
+        <p><strong>Số tổ:</strong> ${ap.info.group}</p>
       `;
+      apMap.src = ap.map + "#toolbar=0&navpanes=0&scrollbar=0";
+      apPeople.innerHTML = ap.staff
+        .map(s => `<li>👤 <strong>${s.name}</strong> – ${s.role} – 📱 ${s.phone}</li>`)
+        .join("");
+      apContact.textContent = `Liên hệ Ban điều hành Ấp: ${ap.staff[1].phone}`;
     }
 
-    document.getElementById("apSelect").addEventListener("change", e => {
-      renderAp(e.target.value);
-    });
-
-    // Hiển thị mặc định Ấp Bình An
-    renderAp("binhan");
+    // Load mặc định
+    loadAp(apSelect.value);
+    apSelect.addEventListener("change", e => loadAp(e.target.value));
   </script>
 </body>
 </html>
